@@ -2,12 +2,9 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 
-# 🎅 Configuration
-st.set_page_config(page_title="Le Jeu de Matteo 🎄", page_icon="🎁", layout="centered")
+st.set_page_config(page_title="Escape Game - La liste de Matteo", page_icon="🎁")
 
-# --------------------------
-# ⚙️ INITIALISATION
-# --------------------------
+# Initialisation
 if "step" not in st.session_state:
     st.session_state.step = 0  # étape du jeu
 if "results" not in st.session_state:
@@ -17,17 +14,17 @@ if "gifts" not in st.session_state:
 if "player_name" not in st.session_state:
     st.session_state.player_name = ""
 
-# --------------------------
-# 🎄 ÉTAPE 0 : INTRO
-# --------------------------
+# Intro
 if st.session_state.step == 0:
-    st.title("🎅 Le Jeu de Matteo 🎄")
-    st.write("Bienvenue dans le jeu de Noël de Matteo ! Résous les énigmes pour découvrir les cadeaux mystères 🎁.")
-    st.write("⚠️ Attention : trois mauvaises réponses sur une énigme et tu perds le cadeau correspondant.")
+    st.title("🎁 Escape Game - La liste de Matteo")
+    st.write("Bienvenue dans ce jeu de Noël. Ici vous allez devoire resoudre différentes enigmes, repondre à des questions et meme vous creuser les meninges.")
+    st.write("Ma liste contient 5 cadeaux, il y aura donc 5 grandes étapes. Chaque étape est composée de differentes activités sur differents thèmes qui permettront de trouver le cadeau.")
+    st.write("PS : Chaque question vous permettra de recuperer un cadeau de ma liste. A vous de decouvrir le maximum de cadeaux !")
+    st.write("⚠️ Attention : trois mauvaises réponses sur une question et tu perds le cadeau correspondant.")
     st.divider()
 
     # Choix du joueur
-    noms_possibles = ["Camille", "Alex", "Théo", "Lucie", "Autre..."]
+    noms_possibles = ["Sonia", "Juliette", "Camille L.", "Camille", "Stéphane", "Sven", "Corentin"]
     choix = st.selectbox("Choisis ton nom dans la liste :", noms_possibles)
     if choix == "Autre...":
         st.session_state.player_name = st.text_input("Entre ton prénom :", key="nom_personnalise")
@@ -36,7 +33,6 @@ if st.session_state.step == 0:
 
     if st.button("Commencer le jeu 🎁") and st.session_state.player_name.strip():
         st.session_state.step = 1
-        st.experimental_rerun()
 
 # --------------------------
 # 🧩 LISTE DES ÉNIGMES
@@ -59,8 +55,8 @@ enigmes = [
     },
     {
         "texte": "4️⃣ (Énigme finale 😈) Si f(x) = x³ + 3x² + 3x + 1, quelle est la dérivée de f(2x) ?",
-        "answer": "6x**2+12x+6",  # réponse symbolique attendue
-        "cadeau": None  # pas de cadeau
+        "answer": "6x**2+12x+6",  
+        "cadeau": None  
     }
 ]
 
@@ -103,9 +99,7 @@ if st.session_state.step > 0 and st.session_state.step <= len(enigmes):
             else:
                 st.warning(f"Mauvaise réponse... (tentative {st.session_state[f'tries_{index}']}/3)")
 
-# --------------------------
-# 🧾 AFFICHAGE DES RÉSULTATS INTERMÉDIAIRES
-# --------------------------
+# résultats intermediaires 
 if any(r is not None for r in st.session_state.results):
     st.divider()
     st.subheader("📋 Résultats intermédiaires :")
@@ -114,44 +108,35 @@ if any(r is not None for r in st.session_state.results):
             st.write(f"Énigme {i+1} : ⏳ Pas encore jouée")
         elif r:
             cadeau = enigmes[i]["cadeau"]
-            if cadeau:
-                st.write(f"✅ Énigme {i+1} : Validé - Cadeau : {cadeau}")
-            else:
-                st.write(f"✅ Énigme {i+1} : Bonne réponse (pas de cadeau pour celle-ci)")
+            st.write(f"✅ Énigme {i+1} : Validé - Cadeau : {cadeau}")
         else:
-            st.write(f"❌ Énigme {i+1} : Faux - Matteo est déçu 😢")
+            st.write(f"❌ Énigme {i+1} : Faux - Matteo est déçu de ne pas avoir ce cadeau")
 
-# --------------------------
-# 🎉 ÉTAPE FINALE
-# --------------------------
+# Fin du jeu
 if st.session_state.step > len(enigmes):
     st.divider()
     st.success(f"🎄 Merci d’avoir joué jusqu’au bout, {st.session_state.player_name} !")
     if st.session_state.gifts:
-        st.write("🎁 Tu as gagné :")
+        st.write("🎁 Tu as trouvé :")
         for g in st.session_state.gifts:
             st.write(f"- {g}")
     else:
         st.write("😅 Tu n’as rien gagné... mais l’esprit de Noël est en toi 🎅")
 
-    # Bouton final
     if st.button("Finir le jeu et envoyer les résultats 📩"):
-        # 📨 Envoi des résultats par e-mail (à configurer)
         message = f"""
         Joueur : {st.session_state.player_name}
-        Résultats :
-        {st.session_state.results}
-        Cadeaux gagnés : {', '.join(st.session_state.gifts) if st.session_state.gifts else 'Aucun'}
+        Résultats : {st.session_state.results}
+        Cadeaux trouvés : {', '.join(st.session_state.gifts) if st.session_state.gifts else 'Aucun'}
         """
 
         try:
-            # ⚠️ À configurer : ton adresse e-mail + mot de passe d’application
             EMAIL_SENDER = "ton_adresse@gmail.com"
             EMAIL_PASSWORD = "mot_de_passe_app"
             EMAIL_RECEIVER = "ton_adresse@gmail.com"
 
             msg = MIMEText(message)
-            msg["Subject"] = f"Résultats du jeu de Noël - {st.session_state.player_name}"
+            msg["Subject"] = f"Résultats de l'Escape Game - {st.session_state.player_name}"
             msg["From"] = EMAIL_SENDER
             msg["To"] = EMAIL_RECEIVER
 
@@ -159,7 +144,6 @@ if st.session_state.step > len(enigmes):
                 server.login(EMAIL_SENDER, EMAIL_PASSWORD)
                 server.send_message(msg)
             
-            st.success("📧 Résultats envoyés avec succès à Matteo !")
+            st.success("Résultats envoyés avec succès à Matteo !")
         except Exception as e:
             st.error("Erreur lors de l’envoi de l’e-mail (à configurer manuellement)")
-            st.text(str(e))
